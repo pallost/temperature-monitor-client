@@ -1,1 +1,1 @@
-go install github.com/pallost/sensor
+go install github.com/pallost/temperature-monitor-client

@@ -1,1 +1,1 @@
-sudo ./../../../../bin/sensor
+sudo ${GOPATH}/bin/temperature-monitor-client
