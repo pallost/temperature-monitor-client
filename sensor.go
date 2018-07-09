@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
+	"os"
+	"os/signal"
 
 	"github.com/d2r2/go-dht"
 )
@@ -64,8 +66,23 @@ func readAndSend() {
 }
 
 func main() {
+	// calling also once in the beginning
+	readAndSend()
+
+	interval := time.Duration(30) * time.Minute
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	signalCh := make(chan os.Signal, 1)
+	signal.Notify(signalCh, os.Interrupt)
+
 	for {
-		readAndSend()
-		time.Sleep(time.Duration(30) * time.Minute)
+		select {
+		case <-signalCh:
+			fmt.Println("Done!")
+			return
+		case <-ticker.C:
+			readAndSend()
+		}
 	}
 }
