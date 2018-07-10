@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"bytes"
 	"encoding/json"
-	"os"
-	"os/signal"
+//	"os"
+//	"os/signal"
 
 	"github.com/d2r2/go-dht"
 )
@@ -69,7 +69,7 @@ func main() {
 	// calling also once in the beginning
 	readAndSend()
 
-	interval := time.Duration(30) * time.Minute
+/*	interval := time.Duration(30) * time.Minute
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
@@ -84,5 +84,5 @@ func main() {
 		case <-ticker.C:
 			readAndSend()
 		}
-	}
+	}*/
 }
