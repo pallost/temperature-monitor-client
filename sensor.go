@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 //	"os"
 //	"os/signal"
+	"io/ioutil"
+	"net/url"
 
 	"github.com/d2r2/go-dht"
 )
@@ -19,14 +21,31 @@ type Measurement struct {
 	Date        int64
 }
 
-//func getOutsideTemperature() {
-//	const getUrl = "http://data.fmi.fi/fmi-apikey/d95d22a1-1da2-44d4-abfc-4f9ecb889700/wfs?request=getFeature&storedquery_id=fmi::observations::weather::cities::timevaluepair&parameters=Temperature"
-//
-//	_, err := http.Get(postUrl, "application/json", bytes.NewBuffer(jsonValue))
-//	if err != nil {
-//		log.Println(err)
-//	}
-//}
+func getOutsideTemperature() float32 {
+	forecaUrl := "https://www.foreca.com/lv"
+	tampereId := "100634963"
+
+	response, err := http.PostForm(forecaUrl, url.Values{
+		"id": {tampereId},
+	})
+
+	if err != nil {
+		log.Println(err)
+		return -1
+	}
+
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		log.Println(err)
+		return -1
+	}
+
+	log.Println(string(body))
+
+	return 1
+}
 
 func makeTimestamp() int64 {
 	return time.Now().UnixNano() / int64(time.Millisecond)
@@ -51,14 +70,16 @@ func readAndSend() {
 	// retry attempts. Play with this parameter.
 	sensorType := dht.DHT22
 
+	outsideTemperature := getOutsideTemperature()
+
 	temperature, humidity, retried, err :=
 		dht.ReadDHTxxWithRetry(sensorType, 4, false, 10)
 	if err != nil {
 		log.Println(err)
 	}
 	// print temperature and humidity
-	fmt.Printf("Sensor = %v: Temperature = %v*C, Humidity = %v%% (retried %d times)\n",
-		sensorType, temperature, humidity, retried)
+	fmt.Printf("Sensor = %v: Temperature = %v*C, Humidity = %v%%, Outside = %v (retried %d times)\n",
+		sensorType, temperature, humidity, outsideTemperature, retried)
 
 	// write to GCloud
 	newMeasurement := Measurement{temperature, humidity, makeTimestamp()}
