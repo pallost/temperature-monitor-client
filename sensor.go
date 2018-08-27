@@ -82,8 +82,14 @@ func readAndSend() {
 		sensorType, temperature, humidity, outsideTemperature, retried)
 
 	// write to GCloud
-	newMeasurement := Measurement{temperature, humidity, makeTimestamp()}
-	uploadToGCloud(newMeasurement)
+        if temperature > 10 &&
+           humidity > 30 &&
+           temperature < 40 &&
+           humidity < 100 &&
+           humidity > temperature {
+		newMeasurement := Measurement{temperature, humidity, makeTimestamp()}
+  		uploadToGCloud(newMeasurement)
+        }
 }
 
 func main() {
